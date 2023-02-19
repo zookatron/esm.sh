@@ -338,17 +338,6 @@ func (task *BuildTask) transformDTS(dts string, aliasDepsPrefix string, marker *
 		buf = bytes.NewBuffer(dtsData)
 	}
 
-	// fix preact/compat types
-	if pkgName == "preact" && strings.HasSuffix(savePath, "/compat/src/index.d.ts") {
-		dtsData := buf.Bytes()
-		dtsData = bytes.ReplaceAll(
-			dtsData,
-			[]byte("export import ComponentProps = preact.ComponentProps;"),
-			[]byte("export import ComponentProps = preact.ComponentProps;\n\n// added by esm.sh\nexport type PropsWithChildren<P = unknown> = P & { children?: preact.ComponentChildren };"),
-		)
-		buf = bytes.NewBuffer(dtsData)
-	}
-
 	_, err = fs.WriteFile(savePath, buf)
 	if err != nil {
 		return
